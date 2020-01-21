@@ -38,9 +38,8 @@ class Producer:
         #
         #
         self.broker_properties = {
-            # TODO
-            # TODO
-            # TODO
+            BROKER_URL = "PLAINTEXT://kafka0:9092,PLAINTEXT://kafka0:9093,PLAINTEXT://kafka0:9094",
+            schema_registry = "http://schema-registry:8081/"
         }
 
         # If the topic does not already exist, try to create it
@@ -49,8 +48,10 @@ class Producer:
             Producer.existing_topics.add(self.topic_name)
 
         # TODO: Configure the AvroProducer
-        # self.producer = AvroProducer(
-        # )
+        self.producer = AvroProducer(
+            { "bootstrap.servers" : broker_properties.BROKER_URL},
+            schema_registry = broker_properties.schema_registry
+        )
 
     def create_topic(self):
         """Creates the producer topic if it does not already exist"""
@@ -60,7 +61,21 @@ class Producer:
         # the Kafka Broker.
         #
         #
-        logger.info("topic creation kafka integration incomplete - skipping")
+
+        AdminClient.create_topic([
+            NewTopic(
+                topic_name,
+                num_partitions,
+                num_replicas,
+                config={
+                    "cleanup.policy" : "compact",
+                    "compression.type" : "lz4",
+                    "delete.retention.ms": 100,
+                    "file.delete.delay.ms": 100
+                }
+            )
+        ])
+        logger.info("topic creation kafka integration complete")
 
     def time_millis(self):
         return int(round(time.time() * 1000))
@@ -72,7 +87,9 @@ class Producer:
         # TODO: Write cleanup code for the Producer here
         #
         #
-        logger.info("producer close incomplete - skipping")
+        #Flushing the messages in producer's queue before closing 
+        producer.flush()
+        logger.info("producer close complete")
 
     def time_millis(self):
         """Use this function to get the key for Kafka Events"""
