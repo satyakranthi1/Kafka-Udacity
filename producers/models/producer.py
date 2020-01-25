@@ -65,7 +65,7 @@ class Producer:
                 }
             )
         ])
-        logger.info("topic creation kafka integration complete")
+        logger.info(f"topic created: {topic_name}")
 
     def time_millis(self):
         return int(round(time.time() * 1000))
@@ -74,7 +74,7 @@ class Producer:
         """Prepares the producer for exit by cleaning up the producer"""
         #Flushing the messages in producer's queue before closing 
         producer.flush()
-        logger.info("producer close complete")
+        logger.info("producer flushed")
 
     def time_millis(self):
         """Use this function to get the key for Kafka Events"""
