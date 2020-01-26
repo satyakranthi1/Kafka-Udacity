@@ -49,7 +49,7 @@ class Turnstile(Producer):
             value={
                 "station_id": self.station.station_id,
                 "station_name": self.station_name,
-                "line": self.station.color
+                "line": self.station.color.name
             },
             )
             num_entries = num_entries - 1
