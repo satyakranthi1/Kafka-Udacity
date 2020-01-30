@@ -31,16 +31,10 @@ class Producer:
         self.num_partitions = num_partitions
         self.num_replicas = num_replicas
 
-        #
-        #
-        # TODO: Configure the broker properties below. Make sure to reference the project README
-        # and use the Host URL for Kafka and Schema Registry!
-        #
-        #
+        # Configuring the broker properties.
         self.broker_properties = {
-            # TODO
-            # TODO
-            # TODO
+            BROKER_URL = "PLAINTEXT://kafka0:9092,PLAINTEXT://kafka0:9093,PLAINTEXT://kafka0:9094",
+            schema_registry = "http://schema-registry:8081/"
         }
 
         # If the topic does not already exist, try to create it
@@ -48,31 +42,39 @@ class Producer:
             self.create_topic()
             Producer.existing_topics.add(self.topic_name)
 
-        # TODO: Configure the AvroProducer
-        # self.producer = AvroProducer(
-        # )
+        # Configuring the AvroProducer
+        self.producer = AvroProducer(
+            { "bootstrap.servers" : broker_properties.BROKER_URL},
+            schema_registry = broker_properties.schema_registry
+        )
 
     def create_topic(self):
         """Creates the producer topic if it does not already exist"""
-        #
-        #
-        # TODO: Write code that creates the topic for this producer if it does not already exist on
-        # the Kafka Broker.
-        #
-        #
-        logger.info("topic creation kafka integration incomplete - skipping")
+        # Code that creates the topic for this producer if it does not already exist on the Kafka Broker.
+
+        AdminClient.create_topic([
+            NewTopic(
+                topic_name,
+                num_partitions,
+                num_replicas,
+                config={
+                    "cleanup.policy" : "compact",
+                    "compression.type" : "lz4",
+                    "delete.retention.ms": 100,
+                    "file.delete.delay.ms": 100
+                }
+            )
+        ])
+        logger.info(f"topic created: {topic_name}")
 
     def time_millis(self):
         return int(round(time.time() * 1000))
 
     def close(self):
         """Prepares the producer for exit by cleaning up the producer"""
-        #
-        #
-        # TODO: Write cleanup code for the Producer here
-        #
-        #
-        logger.info("producer close incomplete - skipping")
+        #Flushing the messages in producer's queue before closing 
+        producer.flush()
+        logger.info("producer flushed")
 
     def time_millis(self):
         """Use this function to get the key for Kafka Events"""
