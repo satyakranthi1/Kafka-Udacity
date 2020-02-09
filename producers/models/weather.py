@@ -21,7 +21,7 @@ class Weather(Producer):
         "status", "sunny partly_cloudy cloudy windy precipitation", start=0
     )
 
-    rest_proxy_url = "http://rest-proxy:8082/"
+    rest_proxy_url = "http://0.0.0.0:8082"
 
     key_schema = None
     value_schema = None
@@ -68,17 +68,22 @@ class Weather(Producer):
         self._set_weather(month)
 
         resp = requests.post(
-           f"{Weather.rest_proxy_url}/topics/{self.topic_name}",
-           headers={"Content-Type": "application/vnd.kafka.v2+json"},
-           data=json.dumps(
-            {
-                "value_schema": self.value_schema,
-                "key_schema": self.key_schema
-                "records": [{"key": {"timestamp": self.time_millis()}, "value": {"temperature": self.temp, "status": self.status.name}}]
-            }
-           ),
+            f"{self.rest_proxy_url}/topics/{self.topic_name}",
+            headers={"Content-Type": "application/vnd.kafka.avro.v2+json"},
+            data=json.dumps(
+                {
+                    "key_schema": json.dumps(Weather.key_schema),
+                    "value_schema": json.dumps(Weather.value_schema),
+                    "records": [{"key": {"timestamp": self.time_millis()}, "value": {"temperature": self.temp, "status": self.status.name}}]
+                }
+            ),
         )
-        resp.raise_for_status()
+
+        try:
+            resp.raise_for_status()
+        except:
+            logging.critical(f"Failed to send data to REST Proxy: {json.dumps(resp.json(), indent=2)}")
+            logging.critical(f"Url posted to: {Weather.rest_proxy_url}/topics/{self.topic_name}")
 
         logger.debug(
             "sent weather data to kafka, temp: %s, status: %s",

@@ -8,20 +8,20 @@ import requests
 logger = logging.getLogger(__name__)
 
 
-KAFKA_CONNECT_URL = "http://kafka-connect:8083"
+KAFKA_CONNECT_URL = "http://0.0.0.0:8083"
 CONNECTOR_NAME = "stations"
 
 def configure_connector():
     """Starts and configures the Kafka Connect connector"""
     logging.debug("creating or updating kafka connect connector...")
-
-    resp = requests.get(f"{KAFKA_CONNECT_URL}/{CONNECTOR_NAME}")
+    logging.debug(f"{KAFKA_CONNECT_URL}/connectors/{CONNECTOR_NAME}")
+    resp = requests.get(f"{KAFKA_CONNECT_URL}/connectors/{CONNECTOR_NAME}")
     if resp.status_code == 200:
         logging.debug("connector already created skipping recreation")
         return
 
     resp = requests.post(
-       KAFKA_CONNECT_URL,
+       f"{KAFKA_CONNECT_URL}/connectors",
        headers={"Content-Type": "application/json"},
        data=json.dumps({
            "name": CONNECTOR_NAME,
