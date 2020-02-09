@@ -30,11 +30,10 @@ class Producer:
         self.value_schema = value_schema
         self.num_partitions = num_partitions
         self.num_replicas = num_replicas
-
         # Configuring the broker properties.
         self.broker_properties = {
-            BROKER_URL = "PLAINTEXT://kafka0:9092,PLAINTEXT://kafka0:9093,PLAINTEXT://kafka0:9094",
-            schema_registry = "http://schema-registry:8081/"
+            "BROKER_URL" : "PLAINTEXT://0.0.0.0:9092,PLAINTEXT://0.0.0.0:9093,PLAINTEXT://0.0.0.0:9094",
+            "schema_registry" : "http://0.0.0.0:8081"
         }
 
         # If the topic does not already exist, try to create it
@@ -44,19 +43,20 @@ class Producer:
 
         # Configuring the AvroProducer
         self.producer = AvroProducer(
-            { "bootstrap.servers" : broker_properties.BROKER_URL},
-            schema_registry = broker_properties.schema_registry
+            { "bootstrap.servers" : self.broker_properties["BROKER_URL"],
+            "schema.registry.url" : self.broker_properties["schema_registry"]},
+            default_key_schema=self.key_schema, default_value_schema=self.value_schema
         )
 
     def create_topic(self):
         """Creates the producer topic if it does not already exist"""
         # Code that creates the topic for this producer if it does not already exist on the Kafka Broker.
 
-        AdminClient.create_topic([
+        AdminClient({'bootstrap.servers': self.broker_properties.get('BROKER_URL')}).create_topics([
             NewTopic(
-                topic_name,
-                num_partitions,
-                num_replicas,
+                self.topic_name,
+                self.num_partitions,
+                self.num_replicas,
                 config={
                     "cleanup.policy" : "compact",
                     "compression.type" : "lz4",
@@ -65,7 +65,7 @@ class Producer:
                 }
             )
         ])
-        logger.info(f"topic created: {topic_name}")
+        logger.info(f"topic created: {self.topic_name}")
 
     def time_millis(self):
         return int(round(time.time() * 1000))
@@ -73,7 +73,7 @@ class Producer:
     def close(self):
         """Prepares the producer for exit by cleaning up the producer"""
         #Flushing the messages in producer's queue before closing 
-        producer.flush()
+        self.producer.flush()
         logger.info("producer flushed")
 
     def time_millis(self):
