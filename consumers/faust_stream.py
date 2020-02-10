@@ -1,5 +1,6 @@
 """Defines trends calculations for stations"""
 import logging
+from dataclasses import dataclass
 
 import faust
 
@@ -32,7 +33,7 @@ class TransformedStation(faust.Record):
 
 
 
-app = faust.App("stations-stream", broker="PLAINTEXT://kafka0:9092", store="memory://")
+app = faust.App("stations-stream", broker="kafka://0.0.0.0:9092", store="memory://")
 
 topic = app.topic("org.chicago.cta.stations", value_type=Station)
 

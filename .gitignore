@@ -1,2 +1,2 @@
-./producers/env/*
-./producers/venv/*
+venv/
+__pycache__
