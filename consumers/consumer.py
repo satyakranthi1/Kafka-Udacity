@@ -31,25 +31,26 @@ class KafkaConsumer:
         self.offset_earliest = offset_earliest
 
         self.broker_properties = {
-            BROKER_URL = "PLAINTEXT://kafka0:9092,PLAINTEXT://kafka0:9093,PLAINTEXT://kafka0:9094",
-            schema_registry = "http://schema-registry:8081/"
+            "BROKER_URL" : "PLAINTEXT://0.0.0.0:9092,PLAINTEXT://0.0.0.0:9093,PLAINTEXT://0.0.0.0:9094",
+            "schema_registry" : "http://0.0.0.0:8081"
         }
 
         if is_avro is True:
             self.consumer = AvroConsumer(
                 { 
-                    "bootstrap.servers" : broker_properties.BROKER_URL, "group.id": 0
-                },
-                schema_registry = broker_properties.schema_registry
+                    "bootstrap.servers" : self.broker_properties["BROKER_URL"],
+                    "schema.registry.url": self.broker_properties["schema_registry"],
+                    "group.id": "groupid"
+                }
             )
         else:
             self.consumer = Consumer(
                 { 
-                    "bootstrap.servers" : broker_properties.BROKER_URL, "group.id": 0
+                    "bootstrap.servers" : self.broker_properties["BROKER_URL"], "group.id": 0
                 }
             )
 
-        self.consumer.subscribe( [topic_name_pattern], on_assign=self.on_assig )
+        self.consumer.subscribe( [topic_name_pattern], on_assign=self.on_assign )
 
     def on_assign(self, consumer, partitions):
         """Callback for when topic assignment takes place"""
@@ -70,7 +71,6 @@ class KafkaConsumer:
 
     def _consume(self):
         """Polls for a message. Returns 1 if a message was received, 0 otherwise"""
-        logger.info("_consume function begin")
         while True:
             message = self.consumer.poll(timeout=1.0)
 
@@ -79,6 +79,7 @@ class KafkaConsumer:
             elif message.error() is not None:
                 logger.info(message.error())
             else:
+                logger.info(f"{message.value()}")
                 return 1
 
 

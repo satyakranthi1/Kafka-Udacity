@@ -10,7 +10,7 @@ import topic_check
 logger = logging.getLogger(__name__)
 
 
-KSQL_URL = "http://ksql:8088"
+KSQL_URL = "http://0.0.0.0:8088"
 
 KSQL_STATEMENT = """
 CREATE TABLE turnstile (
@@ -36,7 +36,7 @@ def execute_statement():
     if topic_check.topic_exists("TURNSTILE_SUMMARY") is True:
         return
 
-    logging.debug("executing ksql statement...")
+    logging.info("executing ksql statement...")
 
     resp = requests.post(
         f"{KSQL_URL}/ksql",
