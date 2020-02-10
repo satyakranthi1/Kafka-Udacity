@@ -53,3 +53,4 @@ class Turnstile(Producer):
             },
             )
             num_entries = num_entries - 1
+            logger.info(f"Turnstile Produced: [ station_id: {self.station.station_id}, station_name: {self.station.name}, line: {self.station.color.name}]")

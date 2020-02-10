@@ -84,9 +84,9 @@ class Weather(Producer):
         except:
             logging.critical(f"Failed to send data to REST Proxy: {json.dumps(resp.json(), indent=2)}")
             logging.critical(f"Url posted to: {Weather.rest_proxy_url}/topics/{self.topic_name}")
-
-        logger.debug(
-            "sent weather data to kafka, temp: %s, status: %s",
-            self.temp,
-            self.status.name,
-        )
+        finally:
+            logger.info(
+                "sent weather data to kafka, temp: %s, status: %s",
+                self.temp,
+                self.status.name,
+            )

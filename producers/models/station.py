@@ -62,6 +62,7 @@ class Station(Producer):
               "prev_direction": prev_direction
            },
         )
+        logger.info(f"Station Produced: [ station_id: {self.station_id}, train_id: {train.train_id}, direction: {direction}, line: {self.color.name}, train_status: {train.status.name}, prev_station_id: {prev_station_id}, prev_direction: {prev_direction} ]")
 
     def __str__(self):
         return "Station | {:^5} | {:<30} | Direction A: | {:^5} | departing to {:<30} | Direction B: | {:^5} | departing to {:<30} | ".format(
