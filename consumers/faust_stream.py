@@ -37,11 +37,11 @@ app = faust.App("stations-stream", broker="kafka://0.0.0.0:9092", store="memory:
 
 topic = app.topic("org.chicago.cta.stations", value_type=Station)
 
-out_topic = app.topic("org.chicago.cta.stations.table.v1", value_type=TransformedStation, partitions=1)
+out_topic = app.topic("org.chicago.cta.stations.table.v1", partitions=1)
 
 table = app.Table(
-   "stations",
-    default=int,
+   "org.chicago.cta.stations.table",
+    default=TransformedStation,
    partitions=1,
    changelog_topic=out_topic,
 )
@@ -49,16 +49,24 @@ table = app.Table(
 @app.agent(topic)
 async def transformStation(stream):
     async for event in stream:
-        table["station_id"] = event.station_id
-        table["station_name"] = event.station_name
-        table["order"] = event.order
-
-        if event.blue:
-            table["line"] = "blue"
-        elif event.red:
-            table["line"] = "red"
+        line = None
+        if event.red:
+            line = "red"
+        elif event.blue:
+            line = "blue"
         elif event.green:
-            table["line"] = "green"
+            line = "green"
+        else:
+            logger.info(f"No color for {event.station_id}")
+        
+        transformedStation = TransformedStation(
+            station_id=event.station_id,
+            station_name=event.station_name,
+            order=event.order,
+            line=line
+        )
+        
+        table[event.station_id] = transformedStation
 
 if __name__ == "__main__":
     app.main()
