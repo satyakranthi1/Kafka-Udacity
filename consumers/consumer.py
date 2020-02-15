@@ -31,7 +31,7 @@ class KafkaConsumer:
         self.offset_earliest = offset_earliest
 
         self.broker_properties = {
-            "BROKER_URL" : "PLAINTEXT://0.0.0.0:9092,PLAINTEXT://0.0.0.0:9093,PLAINTEXT://0.0.0.0:9094",
+            "BROKER_URL" : "PLAINTEXT://0.0.0.0:9092",
             "schema_registry" : "http://0.0.0.0:8081"
         }
 
@@ -46,7 +46,7 @@ class KafkaConsumer:
         else:
             self.consumer = Consumer(
                 { 
-                    "bootstrap.servers" : self.broker_properties["BROKER_URL"], "group.id": 0
+                    "bootstrap.servers" : self.broker_properties["BROKER_URL"], "group.id": "group.id"
                 }
             )
 
@@ -54,7 +54,6 @@ class KafkaConsumer:
 
     def on_assign(self, consumer, partitions):
         """Callback for when topic assignment takes place"""
-        logger.info("on_assign callback begin")
         for partition in partitions:
             partition.offset = OFFSET_BEGINNING
 
@@ -72,14 +71,15 @@ class KafkaConsumer:
     def _consume(self):
         """Polls for a message. Returns 1 if a message was received, 0 otherwise"""
         while True:
-            message = self.consumer.poll(timeout=1.0)
+            message = self.consumer.poll(timeout=0.1)
 
             if message is None:
+                logger.debug(f"{self.topic_name_pattern}: no message")
                 return 0
             elif message.error() is not None:
                 logger.info(message.error())
             else:
-                logger.info(f"{message.value()}")
+                self.message_handler(message)
                 return 1
 
 
