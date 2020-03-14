@@ -45,10 +45,6 @@ Once docker-compose is ready, the following services will be available:
 | KSQL | [http://localhost:8088](http://localhost:8088) | http://ksql:8088 |
 | PostgreSQL | `jdbc:postgresql://localhost:5432/cta` | `jdbc:postgresql://postgres:5432/cta` | `cta_admin` | `chicago` |
 
-Note that to access these services from your own machine, you will always use the `Host URL` column.
-
-When configuring services that run within Docker Compose, like **Kafka Connect you must use the Docker URL**. When you configure the JDBC Source Kafka Connector, for example, you will want to use the value from the `Docker URL` column.
-
 #### To run the `producer`:
 1. `cd producers`
 2. `virtualenv venv`
