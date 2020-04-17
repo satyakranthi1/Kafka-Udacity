@@ -4,7 +4,7 @@ A streaming event pipeline around Apache Kafka and its ecosystem. Using public d
 
 ## Prerequisites
 
-The following are required to complete this project:
+The following are required to run this project:
 
 * Docker
 * Python 3.7
@@ -15,18 +15,18 @@ The following are required to complete this project:
 ### Producers
 * Simulated train arraival events from sensors.
 * Simulated weather readings from old devices by producing events to Kafka using Kafka REST Proxy
-* Used Kafka Connect to extract station information from our PostgreSQL database into Kafka.
+* Used Kafka Connect to extract station information from PostgreSQL database into Kafka.
 
 ### Stream Processing
 * Used Faust Stream Processing to transform the raw Stations table ingested from Kafka Connect.
-* Used KSQL to aggregate turnstile data for each of our stations.
+* Used KSQL to aggregate turnstile data for each station.
 
 ### Consumers
-* Consumed the data in the web server that is going to serve the transit status pages to commuters.
+* Consumed the data in web server that is going to serve the transit status pages to commuters.
 
 ## Running and Testing
 
-To run the simulation, you must first start up the Kafka ecosystem on their machine utilizing Docker Compose.
+To run the simulation, you must first start up the Kafka ecosystem on your machine utilizing Docker Compose.
 
 ```%> docker-compose up```
 
